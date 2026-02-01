@@ -2,40 +2,52 @@ import streamlit as st
 import mediapipe as mp
 import numpy as np
 from PIL import Image
-import time
-import tempfile
 import imageio.v2 as imageio
+import tempfile
+import time
 
-st.set_page_config(page_title="PoseFit – AI Push-Up Counter", layout="centered")
-st.title("💪 PoseFit – AI Push-Up Counter (Cloud Version)")
-st.caption("Video-based pose analysis (cloud-safe)")
+# ---------------- Page Setup ----------------
+st.set_page_config(
+    page_title="PoseFit – Push-Up Counter",
+    layout="centered"
+)
 
+st.title("💪 PoseFit – AI Push-Up Counter")
+st.caption("Upload a workout video. Cloud-safe version (no webcam).")
+
+# ---------------- MediaPipe Setup ----------------
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 
+# ---------------- Helper Function ----------------
 def calculate_angle(a, b, c):
     a = np.array(a)
     b = np.array(b)
     c = np.array(c)
+
     radians = np.arctan2(c[1]-b[1], c[0]-b[0]) - \
               np.arctan2(a[1]-b[1], a[0]-b[0])
     angle = abs(radians * 180 / np.pi)
     return 360 - angle if angle > 180 else angle
 
-uploaded_video = st.file_uploader("📤 Upload push-up video", type=["mp4", "mov", "avi"])
+# ---------------- Video Upload ----------------
+uploaded_video = st.file_uploader(
+    "📤 Upload Push-Up Video",
+    type=["mp4", "mov", "avi"]
+)
 
 if uploaded_video:
-    temp = tempfile.NamedTemporaryFile(delete=False)
-    temp.write(uploaded_video.read())
+    temp_file = tempfile.NamedTemporaryFile(delete=False)
+    temp_file.write(uploaded_video.read())
 
-    reader = imageio.get_reader(temp.name)
+    reader = imageio.get_reader(temp_file.name)
 
     counter = 0
     state = None
     last_rep_time = 0
-    cooldown = 1.0
+    cooldown = 1.0  # seconds
 
-    frame_display = st.empty()
+    frame_box = st.empty()
 
     for frame in reader:
         image = Image.fromarray(frame)
@@ -69,11 +81,12 @@ if uploaded_video:
 
             state = new_state
 
-        frame_display.image(
+        frame_box.image(
             img_rgb,
             caption=f"Push-Ups Counted: {counter}",
             use_column_width=True
         )
 
     st.success(f"✅ Total Push-Ups: {counter}")
+
 

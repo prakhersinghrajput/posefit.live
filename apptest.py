@@ -1,5 +1,7 @@
 import streamlit as st
-import numpy as np
+import mediapipe as mp
 
-st.title("Requirements Test")
-st.write("NumPy version:", np.__version__)
+st.title("MediaPipe Test")
+
+st.write("MediaPipe version:", mp.__version__)
+st.success("MediaPipe imported successfully!")

@@ -1,8 +1,8 @@
 streamlit==1.32.2
 numpy==1.26.4
-mediapipe==0.10.9
 Pillow==10.2.0
 imageio==2.34.0
+
 
 
 
